@@ -2932,8 +2932,9 @@ class ColladaLoader extends Loader {
 					case 'axis':
 						const param = child.getElementsByTagName( 'param' )[ 0 ];
 						data.axis = param.textContent;
-						// const tmpJointIndex = data.axis.split( 'inst_' ).pop().split( 'axis' )[ 0 ];
+						// const tmpJointIndex = data.axis.split( 'inst_' ).pop().split( 'axis' )[ 0 ]; "robot0_motion_robot0_kinematics_kmodel0_inst_joint_1_axis0"
 						const tmpJointIndex = data.axis.split( 'inst_' ).pop().split( 'axis' )[ 1 ];
+
 						data.jointIndex = tmpJointIndex.substr( 1, tmpJointIndex.length );
 
 						// data.jointIndex = tmpJointIndex.substr( 0, tmpJointIndex.length - 1 );
