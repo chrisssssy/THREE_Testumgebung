@@ -208,6 +208,10 @@ class ColladaLoader extends Loader {
 		}
 
 		// library
+		// parseLibrary( collada, 'library_kinematics_models', 'kinematics_model', parseKinematicsModel );
+		// parseLibrary( collada, 'scene', 'instance_kinematics_scene', parseKinematicsScene );
+		// parseLibrary( collada, 'library_joints', 'joints', parseKinematicJoint );
+
 
 		function parseLibrary( xml, libraryName, nodeName, parser ) {
 
@@ -2549,6 +2553,12 @@ class ColladaLoader extends Loader {
 
 		// kinematics
 
+		function parseKinematicsJointLibrary( xml ) {
+
+			library.joints[ xml.getAttribute( 'id' ) ] = parseKinematicsJoint(xml);
+
+		}
+
 		function parseKinematicsModel( xml ) {
 
 			const data = {
@@ -2609,6 +2619,10 @@ class ColladaLoader extends Loader {
 						data.links.push( parseKinematicsLink( child ) );
 						break;
 
+					case 'instance_joint':
+						data.joints[ child.getAttribute( 'sid' ) ] = library.joints[parseId(child.getAttribute( 'url' ))];
+						break;
+
 				}
 
 			}
@@ -2626,7 +2640,6 @@ class ColladaLoader extends Loader {
 				if ( child.nodeType !== 1 ) continue;
 
 				switch ( child.nodeName ) {
-
 					case 'prismatic':
 					case 'revolute':
 						data = parseKinematicsJointParameter( child );
@@ -2888,12 +2901,15 @@ class ColladaLoader extends Loader {
 				switch ( child.nodeName ) {
 
 					case 'bind_joint_axis':
+						
 						data.bindJointAxis.push( parseKinematicsBindJointAxis( child ) );
+						console.log(data.bindJointAxis)
 						break;
 
 				}
 
 			}
+
 
 			library.kinematicsScenes[ parseId( xml.getAttribute( 'url' ) ) ] = data;
 
@@ -2916,8 +2932,11 @@ class ColladaLoader extends Loader {
 					case 'axis':
 						const param = child.getElementsByTagName( 'param' )[ 0 ];
 						data.axis = param.textContent;
-						const tmpJointIndex = data.axis.split( 'inst_' ).pop().split( 'axis' )[ 0 ];
-						data.jointIndex = tmpJointIndex.substr( 0, tmpJointIndex.length - 1 );
+						// const tmpJointIndex = data.axis.split( 'inst_' ).pop().split( 'axis' )[ 0 ];
+						const tmpJointIndex = data.axis.split( 'inst_' ).pop().split( 'axis' )[ 1 ];
+						data.jointIndex = tmpJointIndex.substr( 1, tmpJointIndex.length );
+
+						// data.jointIndex = tmpJointIndex.substr( 0, tmpJointIndex.length - 1 );
 						break;
 
 				}
@@ -3029,6 +3048,8 @@ class ColladaLoader extends Loader {
 
 					if ( jointData ) {
 
+						
+
 						const joint = jointData.joint;
 
 						if ( value > joint.limits.max || value < joint.limits.min ) {
@@ -3044,6 +3065,7 @@ class ColladaLoader extends Loader {
 							const object = jointData.object;
 							const axis = joint.axis;
 							const transforms = jointData.transforms;
+
 
 							matrix.identity();
 
@@ -3101,6 +3123,7 @@ class ColladaLoader extends Loader {
 
 							object.matrix.copy( matrix );
 							object.matrix.decompose( object.position, object.quaternion, object.scale );
+
 
 							jointMap[ jointIndex ].position = value;
 
@@ -3942,6 +3965,7 @@ class ColladaLoader extends Loader {
 			geometries: {},
 			nodes: {},
 			visualScenes: {},
+			joints: {},
 			kinematicsModels: {},
 			physicsModels: {},
 			kinematicsScenes: {}
@@ -3958,6 +3982,7 @@ class ColladaLoader extends Loader {
 		parseLibrary( collada, 'library_geometries', 'geometry', parseGeometry );
 		parseLibrary( collada, 'library_nodes', 'node', parseNode );
 		parseLibrary( collada, 'library_visual_scenes', 'visual_scene', parseVisualScene );
+		parseLibrary( collada, 'library_joints', 'joint', parseKinematicsJointLibrary );
 		parseLibrary( collada, 'library_kinematics_models', 'kinematics_model', parseKinematicsModel );
 		parseLibrary( collada, 'library_physics_models', 'physics_model', parsePhysicsModel );
 		parseLibrary( collada, 'scene', 'instance_kinematics_scene', parseKinematicsScene );
