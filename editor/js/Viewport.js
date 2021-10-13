@@ -25,6 +25,8 @@ function Viewport( editor ) {
 	container.setId( 'viewport' );
 	container.setPosition( 'absolute' );
 
+
+
 	container.add( new ViewportCamera( editor ) );
 	container.add( new ViewportInfo( editor ) );
 
@@ -58,7 +60,6 @@ function Viewport( editor ) {
 	var viewHelper = new ViewHelper( camera, container );
 	var vr = new VR( editor );
 
-	//
 
 	var box = new THREE.Box3();
 

@@ -33,9 +33,15 @@
 
 			const loader = new ColladaLoader();
 			// loader.load( './models/collada/kawada-hironx.dae', function ( collada ) {
-			loader.load( './models/collada/abb_irb52_7_120.dae', function ( collada ) {
+			// loader.load( './models/collada/abb_irb52_7_120.dae', function ( collada ) {
+			loader.load( './models/collada/543989_DGSL-16-100-PA.dae', function ( collada ) {
+
+				
 
 				dae = collada.scene;
+
+				dae.rotateX(THREE.MathUtils.degToRad(90));
+				dae.translateY(10);
 
 				dae.traverse( function ( child ) {
 
@@ -48,7 +54,7 @@
 
 				} );
 
-				dae.scale.x = dae.scale.y = dae.scale.z = 10.0;
+				dae.scale.x = dae.scale.y = dae.scale.z = 0.05;
 				dae.updateMatrix();
 
 				kinematics = collada.kinematics;
@@ -112,9 +118,11 @@
 
 				for ( const prop in kinematics.joints ) {
 
+
 					if ( kinematics.joints.hasOwnProperty( prop ) ) {
 
 						if ( ! kinematics.joints[ prop ].static ) {
+
 
 							const joint = kinematics.joints[ prop ];
 
@@ -142,7 +150,7 @@
 
 							if ( ! kinematics.joints[ prop ].static ) {
 
-								kinematics.setJointValue( prop, object[ prop ] );
+								kinematics.setJointValue( prop, object[ prop ]);
 
 							}
 
@@ -180,6 +188,7 @@
 			}
 
 			function render() {
+
 
 				const timer = Date.now() * 0.0001;
 

@@ -3,11 +3,61 @@ import { TransformControls } from './examples/jsm/controls/TransformControls.js'
 import { OrbitControls } from './examples/jsm/controls/OrbitControls.js';
 import { EditorControls } from './editor/js/EditorControls.js';
 
-let camera, scene, renderer;
+import { UIPanel } from './editor/js/libs/ui.js';
+import { ViewHelper } from './editor/js/Viewport.ViewHelper.js';
+
+let camera, scene, renderer, container, viewHelper;
 let geometry, material, mesh;
 let orbitControls;
 
-init();
+// init();
+
+init2();
+
+function init2() {
+
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);
+    camera.position.set(2,2,3);
+    camera.lookAt(1,1,0);
+
+    scene = new THREE.Scene();
+
+    geometry = new THREE.BoxGeometry(1, 1, 1);
+    material = new THREE.MeshNormalMaterial();
+
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.name = "cube";
+    scene.add(mesh);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    
+    document.body.appendChild(renderer.domElement);
+
+
+
+
+
+
+    let transformControls = new TransformControls(camera, renderer.domElement);
+    scene.add(transformControls);
+
+    transformControls.attach(mesh);
+
+    renderer.domElement.addEventListener("mousemove", mousemove, false);
+    renderer.domElement.addEventListener("mousedown", mousedown, false);
+
+
+    let editorControls = new EditorControls(camera, renderer.domElement);
+    editorControls.focus(mesh);
+
+    transformControls.addEventListener("dragging-changed", event => editorControls.enabled = !event.value);
+
+    
+
+}
+
+
 
 function init() {
 
@@ -25,11 +75,16 @@ function init() {
     scene.add(mesh);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
+    renderer.setSize(window.innerWidth*0.9, window.innerHeight*0.9);
     
     renderer.setAnimationLoop(animation);
-    document.body.appendChild(renderer.domElement);
+
+    
+
+
+
+
+
 
     let transformControls = new TransformControls(camera, renderer.domElement);
     scene.add(transformControls);
@@ -45,10 +100,20 @@ function init() {
     // orbitControls.target = new THREE.Vector3(0,1,0);
 
     let editorControls = new EditorControls(camera, renderer.domElement);
-    editorControls.center.set(1,1,0);
-    // editorControls.focus(mesh);
+    editorControls.focus(mesh);
 
     transformControls.addEventListener("dragging-changed", event => editorControls.enabled = !event.value);
+
+    container = new UIPanel();
+    container.setId( 'viewport' );
+	container.setPosition( 'absolute' );
+
+    container.dom.appendChild( renderer.domElement );
+
+    document.body.appendChild(container.dom);
+
+    viewHelper = new ViewHelper( camera, container );
+    viewHelper.controls = editorControls;
 
 }
 
@@ -77,13 +142,25 @@ function mousedown(event) {
 function mousemove(event) {
 }
 
+var clock = new THREE.Clock(); // only used for animations
+
 function animation(time) {
 
     // mesh.rotation.x = time / 2000;
     // mesh.rotation.y = time / 1000;
 
+	var delta = clock.getDelta();
 
+    if ( viewHelper.animating === true ) {
 
+        viewHelper.update( delta );
+    }
+
+    renderer.setViewport( 0, 0, container.dom.offsetWidth, container.dom.offsetHeight );
     renderer.render(scene, camera);
+
+    renderer.autoClear = false;
+    viewHelper.render( renderer );
+    renderer.autoClear = true;
 
 }
