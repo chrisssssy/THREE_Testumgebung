@@ -170,6 +170,8 @@ class OrbitControls extends EventDispatcher {
 
 				offset.copy( position ).sub( scope.target );
 
+				console.log(scope.target);
+
 				// rotate offset to "y-axis-is-up" space
 				offset.applyQuaternion( quat );
 
